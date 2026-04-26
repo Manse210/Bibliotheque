@@ -1,10 +1,10 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html>
 <head>
-    <title>Laravel + React</title>
-    @vite('resources/js/app.jsx')
+    <title>Bibliothèque - Laravel + React</title>
+    @vite(['resources/css/app.css', 'resources/js/app.jsx'])
 </head>
-<body>
+<body class="bg-gray-50">
     <div id="app"></div>
 </body>
 </html>

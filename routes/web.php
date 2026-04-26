@@ -2,17 +2,12 @@
 
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return 'Bienvenue sur Laravel !';
-});
-
-Route::get('/bonjour', function () {
-    return 'Bonjour tout le monde !';
-});
-
-Route::get('/livres', function () {
-    return view('livre');
-});
+// API Route
 Route::get('/api/hello', function () {
     return response()->json(['message' => 'Bienvenue sur l\'API de la bibliothèque !']);
-});Route::get('/test-react', function () { return view('react'); });
+});
+
+// Toutes les autres routes sont gérées par React
+Route::get('/{any}', function () {
+    return view('react');
+})->where('any', '.*');
