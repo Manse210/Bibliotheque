@@ -1,7 +1,16 @@
 import React from 'react';
 import { Book } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const Login = () => {
+    const navigate = useNavigate();
+
+    const handleLogin = (event) => {
+        event.preventDefault();
+        localStorage.setItem('user_token', 'demo-token');
+        navigate('/dashboard', { replace: true });
+    };
+
     return (
         <div className="min-h-screen bg-purple-900 flex items-center justify-center p-4">
             <div className="max-w-md w-full bg-white rounded-2xl shadow-2xl overflow-hidden">
@@ -15,7 +24,7 @@ const Login = () => {
                     <h2 className="text-2xl font-bold text-center text-gray-800 mb-2">Bienvenue</h2>
                     <p className="text-center text-gray-400 mb-8">Connectez-vous pour gérer la bibliothèque</p>
 
-                    <form className="space-y-4">
+                    <form className="space-y-4" onSubmit={handleLogin}>
                         <div>
                             <label className="block text-sm font-semibold text-gray-700 mb-1">Email</label>
                             <input 
@@ -33,7 +42,7 @@ const Login = () => {
                             />
                         </div>
                         
-                        <button className="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 rounded-lg shadow-lg shadow-purple-200 transition-all active:scale-95">
+                        <button type="submit" className="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 rounded-lg shadow-lg shadow-purple-200 transition-all active:scale-95">
                             Se connecter
                         </button>
                     </form>

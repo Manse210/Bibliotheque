@@ -2,7 +2,7 @@ import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { LayoutDashboard, Book, Users, ClipboardList, LogOut } from 'lucide-react';
 
-const Sidebar = () => {
+const Sidebar = ({ onLogout }) => {
     const location = useLocation();
 
     const menuItems = [
@@ -42,7 +42,10 @@ const Sidebar = () => {
             </nav>
 
             <div className="p-6 border-t border-purple-800">
-                <button className="flex items-center gap-3 text-purple-200 hover:text-white transition-colors w-full">
+                <button
+                    onClick={onLogout}
+                    className="flex items-center gap-3 text-purple-200 hover:text-white transition-colors w-full"
+                >
                     <LogOut className="w-5 h-5" />
                     <span>Déconnexion</span>
                 </button>

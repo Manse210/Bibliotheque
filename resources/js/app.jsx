@@ -7,10 +7,16 @@ import Catalogue from "./components/Catalogue";
 import Lecteurs from "./components/Lecteurs";
 import Emprunts from "./components/Emprunts";
 import Login from "./components/Login";
+import Profile from "./components/Profile";
+import authService from "./services/authService";
 
 function App() {
-    // Note: Pour une vraie app, on vérifierait l'authentification ici
-    const isAuthenticated = true; 
+    // Temporaire: on désactive le contrôle d'auth tant que la BDD/auth backend ne sont pas finalisées.
+    const isAuthenticated = true;
+
+    const handleLogout = async () => {
+        await authService.logout();
+    };
 
     if (!isAuthenticated) {
         return (
@@ -25,12 +31,13 @@ function App() {
 
     return (
         <BrowserRouter>
-            <MainLayout>
+            <MainLayout onLogout={handleLogout}>
                 <Routes>
                     <Route path="/dashboard" element={<Dashboard />} />
                     <Route path="/catalogue" element={<Catalogue />} />
                     <Route path="/lecteurs" element={<Lecteurs />} />
                     <Route path="/emprunts" element={<Emprunts />} />
+                    <Route path="/profil" element={<Profile />} />
                     <Route path="/login" element={<Navigate to="/dashboard" replace />} />
                     <Route path="/" element={<Navigate to="/dashboard" replace />} />
                     {/* Catch-all for undefined routes in the dashboard */}
