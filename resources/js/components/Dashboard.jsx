@@ -1,5 +1,5 @@
 import React from 'react';
-import { BookOpen, Users, Clock, CheckCircle } from 'lucide-react';
+import { BookOpen, Users, Clock, CheckCircle, Plus } from 'lucide-react';
 
 const Dashboard = () => {
     const stats = [
