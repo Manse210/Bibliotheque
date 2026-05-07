@@ -1,0 +1,40 @@
+Architecture React pour la Bibliothèque (Plan Additif)
+Ce plan se concentre sur l'ajout des fichiers manquants à la structure actuelle, en conservant resources/js/app.jsx comme point d'entrée principal.
+
+État actuel
+resources/js/app.jsx : Point d'entrée configuré dans Vite et Laravel.
+Fichiers à Ajouter (Logique & Interface)
+1. Configuration & API
+[NEW] 
+api.js
+ : Configuration Axios (base URL, intercepteurs pour tokens).
+2. Services (Logique de données)
+Création d'un dossier resources/js/services/ pour isoler les appels API :
+
+[NEW] authService.js : Login/Logout.
+[NEW] livreService.js : CRUD des livres.
+[NEW] lecteurService.js : CRUD des lecteurs.
+[NEW] empruntService.js : CRUD des emprunts.
+3. Composants & Layout (Interface)
+Création d'un dossier resources/js/components/ regroupant le layout et les pages :
+
+Layout & Navigation :
+[NEW] MainLayout.jsx : Structure (Header + Sidebar + Content).
+[NEW] Sidebar.jsx : Menu de navigation (Thème Mauve).
+[NEW] Header.jsx : Barre supérieure.
+Pages/Modules :
+[NEW] Dashboard.jsx : Vue d'accueil avec indicateurs.
+[NEW] Login.jsx : Formulaire d'accès.
+[NEW] Catalogue.jsx : Liste et gestion des livres.
+[NEW] Lecteurs.jsx : Liste et gestion des lecteurs.
+[NEW] Emprunts.jsx : Liste et gestion des emprunts.
+Utilitaires UI :
+[NEW] Pagination.jsx : Composant réutilisable pour les listes.
+[NEW] Toast.jsx : Système de notifications succès/erreur.
+Logique d'Implémentation
+Routage : app.jsx sera enrichi avec BrowserRouter pour dispatcher les composants selon l'URL (ex: /dashboard, /catalogue).
+Gestion du Thème : Utilisation de Tailwind via les classes CSS directement dans les nouveaux composants pour appliquer le style Blanc (fond) et Mauve (actions/navigation).
+Flux de données :
+Les composants appellent les fonctions des services.
+Les services utilisent api.js pour communiquer avec Laravel.
+Les résultats sont stockés dans l'état local (useState) du composant.

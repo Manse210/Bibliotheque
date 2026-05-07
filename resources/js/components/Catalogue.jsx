@@ -1,13 +1,78 @@
-import React, { useState } from 'react';
-import { Plus, Search, Filter, MoreVertical, BookOpen, X, Pencil, Trash2 } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Plus, Search, Filter, BookOpen, X, Pencil, Trash2 } from 'lucide-react';
+import livreService from '../services/livreService';
 
 const Catalogue = () => {
+    const [livres, setLivres] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedLivre, setSelectedLivre] = useState(null);
+    const [formData, setFormData] = useState({
+        titre: '',
+        auteur: '',
+        isbn: '',
+        annee_publication: '',
+        quantite_disponible: 1
+    });
+
+    // Charger les livres au montage
+    useEffect(() => {
+        fetchLivres();
+    }, []);
+
+    const fetchLivres = async () => {
+        setIsLoading(true);
+        try {
+            const data = await livreService.getAll();
+            setLivres(data);
+        } catch (error) {
+            console.error('Erreur lors du chargement des livres:', error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
     const handleOpenModal = (livre = null) => {
         setSelectedLivre(livre);
+        if (livre) {
+            setFormData({
+                titre: livre.titre,
+                auteur: livre.auteur,
+                isbn: livre.isbn || '',
+                annee_publication: livre.annee_publication || '',
+                quantite_disponible: livre.quantite_disponible || 1
+            });
+        } else {
+            setFormData({
+                titre: '',
+                auteur: '',
+                isbn: '',
+                annee_publication: '',
+                quantite_disponible: 1
+            });
+        }
         setIsModalOpen(true);
+    };
+
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setFormData(prev => ({ ...prev, [name]: value }));
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        try {
+            if (selectedLivre) {
+                // await livreService.update(selectedLivre.id, formData);
+            } else {
+                await livreService.create(formData);
+            }
+            setIsModalOpen(false);
+            fetchLivres(); // Rafraîchir la liste
+        } catch (error) {
+            console.error('Erreur lors de la sauvegarde:', error);
+            alert('Une erreur est survenue lors de la sauvegarde.');
+        }
     };
 
     return (
@@ -49,54 +114,62 @@ const Catalogue = () => {
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100">
-                        {[
-                            { id: 1, titre: 'Le Petit Prince', auteur: 'Antoine de Saint-Exupéry', isbn: '978-2070612758', statut: 'Disponible' },
-                            { id: 2, titre: 'L\'Étranger', auteur: 'Albert Camus', isbn: '978-2070360024', statut: 'Emprunté' },
-                            { id: 3, titre: '1984', auteur: 'George Orwell', isbn: '978-2070409228', statut: 'Disponible' },
-                            { id: 4, titre: 'Le Alchimiste', auteur: 'Paulo Coelho', isbn: '978-2290004449', statut: 'Disponible' },
-                            { id: 5, titre: 'Les Misérables', auteur: 'Victor Hugo', isbn: '978-2253006312', statut: 'Disponible' },
-                        ].map((livre) => (
-                            <tr key={livre.id} className="hover:bg-gray-50/50 transition-colors">
-                                <td className="px-6 py-4">
-                                    <div className="flex items-center gap-3">
-                                        <div className="w-10 h-12 bg-gray-100 rounded flex items-center justify-center">
-                                            <BookOpen className="w-6 h-6 text-gray-300" />
-                                        </div>
-                                        <div>
-                                            <p className="text-sm font-bold text-gray-800">{livre.titre}</p>
-                                            <p className="text-xs text-gray-400">ISBN: {livre.isbn}</p>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td className="px-6 py-4 text-sm text-gray-600">{livre.auteur}</td>
-                                <td className="px-6 py-4">
-                                    <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
-                                        livre.statut === 'Disponible' 
-                                        ? 'bg-green-50 text-green-600' 
-                                        : 'bg-orange-50 text-orange-600'
-                                    }`}>
-                                        {livre.statut}
-                                    </span>
-                                </td>
-                                <td className="px-6 py-4 text-right">
-                                    <div className="flex justify-end gap-2">
-                                        <button 
-                                            onClick={() => handleOpenModal(livre)}
-                                            className="p-2 text-blue-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all"
-                                            title="Modifier"
-                                        >
-                                            <Pencil className="w-4 h-4" />
-                                        </button>
-                                        <button 
-                                            className="p-2 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
-                                            title="Supprimer"
-                                        >
-                                            <Trash2 className="w-4 h-4" />
-                                        </button>
-                                    </div>
+                        {isLoading ? (
+                            <tr>
+                                <td colSpan="4" className="text-center py-8 text-gray-500">
+                                    Chargement des livres...
                                 </td>
                             </tr>
-                        ))}
+                        ) : livres.length === 0 ? (
+                            <tr>
+                                <td colSpan="4" className="text-center py-8 text-gray-500">
+                                    Aucun livre trouvé dans le catalogue.
+                                </td>
+                            </tr>
+                        ) : (
+                            livres.map((livre) => (
+                                <tr key={livre.id} className="hover:bg-gray-50/50 transition-colors">
+                                    <td className="px-6 py-4">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-10 h-12 bg-gray-100 rounded flex items-center justify-center">
+                                                <BookOpen className="w-6 h-6 text-gray-300" />
+                                            </div>
+                                            <div>
+                                                <p className="text-sm font-bold text-gray-800">{livre.titre}</p>
+                                                <p className="text-xs text-gray-400">ISBN: {livre.isbn || 'N/A'}</p>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td className="px-6 py-4 text-sm text-gray-600">{livre.auteur}</td>
+                                    <td className="px-6 py-4">
+                                        <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                                            livre.statut === 'Disponible' 
+                                            ? 'bg-green-50 text-green-600' 
+                                            : 'bg-orange-50 text-orange-600'
+                                        }`}>
+                                            {livre.statut}
+                                        </span>
+                                    </td>
+                                    <td className="px-6 py-4 text-right">
+                                        <div className="flex justify-end gap-2">
+                                            <button 
+                                                onClick={() => handleOpenModal(livre)}
+                                                className="p-2 text-blue-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all"
+                                                title="Modifier"
+                                            >
+                                                <Pencil className="w-4 h-4" />
+                                            </button>
+                                            <button 
+                                                className="p-2 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
+                                                title="Supprimer"
+                                            >
+                                                <Trash2 className="w-4 h-4" />
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            ))
+                        )}
                     </tbody>
                 </table>
             </div>
@@ -117,23 +190,29 @@ const Catalogue = () => {
                             </button>
                         </div>
                         
-                        <form className="p-6 space-y-4">
+                        <form onSubmit={handleSubmit} className="p-6 space-y-4">
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-1">Titre</label>
                                 <input 
                                     type="text" 
+                                    name="titre"
+                                    required
+                                    value={formData.titre}
+                                    onChange={handleChange}
                                     className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition-all"
                                     placeholder="Ex: Le Petit Prince"
-                                    defaultValue={selectedLivre?.titre || ''}
                                 />
                             </div>
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-1">Auteur</label>
                                 <input 
                                     type="text" 
+                                    name="auteur"
+                                    required
+                                    value={formData.auteur}
+                                    onChange={handleChange}
                                     className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition-all"
                                     placeholder="Ex: Antoine de Saint-Exupéry"
-                                    defaultValue={selectedLivre?.auteur || ''}
                                 />
                             </div>
                             <div className="grid grid-cols-2 gap-4">
@@ -141,20 +220,36 @@ const Catalogue = () => {
                                     <label className="block text-sm font-medium text-gray-700 mb-1">ISBN</label>
                                     <input 
                                         type="text" 
+                                        name="isbn"
+                                        value={formData.isbn}
+                                        onChange={handleChange}
                                         className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition-all"
                                         placeholder="123-456-789"
-                                        defaultValue={selectedLivre?.isbn || ''}
                                     />
                                 </div>
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">Année</label>
                                     <input 
                                         type="number" 
+                                        name="annee_publication"
+                                        value={formData.annee_publication}
+                                        onChange={handleChange}
                                         className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition-all"
                                         placeholder="2024"
-                                        defaultValue={2024}
                                     />
                                 </div>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Quantité disponible</label>
+                                <input 
+                                    type="number" 
+                                    name="quantite_disponible"
+                                    value={formData.quantite_disponible}
+                                    onChange={handleChange}
+                                    min="0"
+                                    className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition-all"
+                                    placeholder="1"
+                                />
                             </div>
                             
                             <div className="pt-4 flex gap-3">
@@ -181,4 +276,3 @@ const Catalogue = () => {
 };
 
 export default Catalogue;
-

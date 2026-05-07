@@ -1,22 +1,62 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { BookOpen, Users, Clock, CheckCircle, Plus } from 'lucide-react';
+import api from '../api';
 
 const Dashboard = () => {
     const navigate = useNavigate();
-    const stats = [
-        { label: 'Livres Totaux', value: '1,240', icon: BookOpen, color: 'bg-blue-500' },
-        { label: 'Lecteurs Actifs', value: '458', icon: Users, color: 'bg-purple-500' },
-        { label: 'Emprunts en cours', value: '42', icon: Clock, color: 'bg-orange-500' },
-        { label: 'Retours aujourd\'hui', value: '12', icon: CheckCircle, color: 'bg-green-500' },
+    const [data, setData] = useState({
+        stats: {
+            total_livres: 0,
+            lecteurs_actifs: 0,
+            emprunts_en_cours: 0,
+            retours_aujourdhui: 0
+        },
+        stock: {
+            disponibles_percent: 0,
+            en_pret_percent: 0,
+            en_retard_percent: 0
+        },
+        activites: []
+    });
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchDashboardData = async () => {
+            try {
+                const response = await api.get('/dashboard');
+                setData(response.data);
+            } catch (error) {
+                console.error("Erreur lors du chargement du tableau de bord:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchDashboardData();
+    }, []);
+
+    const statsConfig = [
+        { label: 'Livres Totaux', value: data.stats.total_livres, icon: BookOpen, color: 'bg-blue-500' },
+        { label: 'Lecteurs Actifs', value: data.stats.lecteurs_actifs, icon: Users, color: 'bg-purple-500' },
+        { label: 'Emprunts en cours', value: data.stats.emprunts_en_cours, icon: Clock, color: 'bg-orange-500' },
+        { label: 'Retours aujourd\'hui', value: data.stats.retours_aujourdhui, icon: CheckCircle, color: 'bg-green-500' },
     ];
+
+    if (loading) {
+        return (
+            <div className="flex items-center justify-center h-64">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
+            </div>
+        );
+    }
 
     return (
         <div>
             <h1 className="text-2xl font-bold text-gray-800 mb-8">Tableau de Bord</h1>
             
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                {stats.map((stat) => {
+                {statsConfig.map((stat) => {
                     const Icon = stat.icon;
                     return (
                         <div key={stat.label} className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex items-center gap-4">
@@ -39,27 +79,26 @@ const Dashboard = () => {
                         Dernières Activités
                     </h2>
                     <div className="space-y-6">
-                        {[
-                            { title: 'Livre "L\'Étranger" emprunté', user: 'Jean Dupont', time: 'Il y a 2 heures', type: 'Emprunt', color: 'text-blue-600 bg-blue-50' },
-                            { title: 'Livre "1984" retourné', user: 'Marie Simon', time: 'Il y a 5 heures', type: 'Retour', color: 'text-green-600 bg-green-50' },
-                            { title: 'Nouveau lecteur inscrit', user: 'Alice Legrand', time: 'Hier', type: 'Inscription', color: 'text-purple-600 bg-purple-50' },
-                            { title: 'Livre "Le Petit Prince" ajouté', user: 'Admin', time: 'Hier', type: 'Catalogue', color: 'text-orange-600 bg-orange-50' },
-                        ].map((activity, i) => (
-                            <div key={i} className="flex items-center justify-between group cursor-default">
-                                <div className="flex items-center gap-4">
-                                    <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold ${activity.color}`}>
-                                        {activity.user[0]}
+                        {data.activites.length > 0 ? (
+                            data.activites.map((activity, i) => (
+                                <div key={i} className="flex items-center justify-between group cursor-default">
+                                    <div className="flex items-center gap-4">
+                                        <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold ${activity.color}`}>
+                                            {activity.user[0]}
+                                        </div>
+                                        <div>
+                                            <p className="text-sm font-semibold text-gray-800 group-hover:text-purple-600 transition-colors">{activity.title}</p>
+                                            <p className="text-xs text-gray-400">{activity.user} • {activity.time}</p>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <p className="text-sm font-semibold text-gray-800 group-hover:text-purple-600 transition-colors">{activity.title}</p>
-                                        <p className="text-xs text-gray-400">{activity.user} • {activity.time}</p>
-                                    </div>
+                                    <span className={`text-[10px] uppercase tracking-wider font-bold px-2 py-1 rounded-md ${activity.color}`}>
+                                        {activity.type}
+                                    </span>
                                 </div>
-                                <span className={`text-[10px] uppercase tracking-wider font-bold px-2 py-1 rounded-md ${activity.color}`}>
-                                    {activity.type}
-                                </span>
-                            </div>
-                        ))}
+                            ))
+                        ) : (
+                            <p className="text-sm text-gray-500 text-center py-4">Aucune activité récente.</p>
+                        )}
                     </div>
                 </div>
 
@@ -97,28 +136,28 @@ const Dashboard = () => {
                             <div>
                                 <div className="flex justify-between text-xs mb-1">
                                     <span className="text-gray-400">Livres Disponibles</span>
-                                    <span className="text-gray-800 font-bold">85%</span>
+                                    <span className="text-gray-800 font-bold">{data.stock.disponibles_percent}%</span>
                                 </div>
                                 <div className="w-full bg-gray-100 h-2 rounded-full overflow-hidden">
-                                    <div className="bg-green-500 h-full w-[85%]" />
+                                    <div className="bg-green-500 h-full transition-all duration-1000" style={{ width: `${data.stock.disponibles_percent}%` }} />
                                 </div>
                             </div>
                             <div>
                                 <div className="flex justify-between text-xs mb-1">
                                     <span className="text-gray-400">En cours de prêt</span>
-                                    <span className="text-gray-800 font-bold">12%</span>
+                                    <span className="text-gray-800 font-bold">{data.stock.en_pret_percent}%</span>
                                 </div>
                                 <div className="w-full bg-gray-100 h-2 rounded-full overflow-hidden">
-                                    <div className="bg-blue-500 h-full w-[12%]" />
+                                    <div className="bg-blue-500 h-full transition-all duration-1000" style={{ width: `${data.stock.en_pret_percent}%` }} />
                                 </div>
                             </div>
                             <div>
                                 <div className="flex justify-between text-xs mb-1">
                                     <span className="text-gray-400">En retard</span>
-                                    <span className="text-gray-800 font-bold">3%</span>
+                                    <span className="text-gray-800 font-bold">{data.stock.en_retard_percent}%</span>
                                 </div>
                                 <div className="w-full bg-gray-100 h-2 rounded-full overflow-hidden">
-                                    <div className="bg-red-500 h-full w-[3%]" />
+                                    <div className="bg-red-500 h-full transition-all duration-1000" style={{ width: `${data.stock.en_retard_percent}%` }} />
                                 </div>
                             </div>
                         </div>
