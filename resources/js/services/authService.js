@@ -10,8 +10,11 @@ const authService = {
     },
 
     logout: async () => {
-        await api.post('/logout');
-        localStorage.removeItem('user_token');
+        try {
+            await api.post('/logout');
+        } finally {
+            localStorage.removeItem('user_token');
+        }
     },
 
     getCurrentUser: async () => {

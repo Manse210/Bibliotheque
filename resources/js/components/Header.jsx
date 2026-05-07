@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { User, Bell, Search } from 'lucide-react';
 
 const Header = () => {
@@ -19,7 +20,7 @@ const Header = () => {
                     <span className="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
                 </button>
                 
-                <div className="flex items-center gap-3 pl-6 border-l border-gray-100">
+                <Link to="/profil" className="flex items-center gap-3 pl-6 border-l border-gray-100 hover:opacity-90 transition-opacity">
                     <div className="text-right">
                         <p className="text-sm font-semibold text-gray-800">Admin</p>
                         <p className="text-xs text-gray-400">Bibliothécaire</p>
@@ -27,7 +28,7 @@ const Header = () => {
                     <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center text-purple-600">
                         <User className="w-6 h-6" />
                     </div>
-                </div>
+                </Link>
             </div>
         </header>
     );
