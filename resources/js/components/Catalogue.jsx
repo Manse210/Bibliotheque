@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Plus, Search, Filter, MoreVertical, BookOpen, X } from 'lucide-react';
+import { Plus, Search, Filter, MoreVertical, BookOpen, X, Pencil, Trash2 } from 'lucide-react';
 
 const Catalogue = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -49,27 +49,51 @@ const Catalogue = () => {
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100">
-                        {[1, 2, 3, 4, 5].map((i) => (
-                            <tr key={i} className="hover:bg-gray-50/50 transition-colors">
+                        {[
+                            { id: 1, titre: 'Le Petit Prince', auteur: 'Antoine de Saint-Exupéry', isbn: '978-2070612758', statut: 'Disponible' },
+                            { id: 2, titre: 'L\'Étranger', auteur: 'Albert Camus', isbn: '978-2070360024', statut: 'Emprunté' },
+                            { id: 3, titre: '1984', auteur: 'George Orwell', isbn: '978-2070409228', statut: 'Disponible' },
+                            { id: 4, titre: 'Le Alchimiste', auteur: 'Paulo Coelho', isbn: '978-2290004449', statut: 'Disponible' },
+                            { id: 5, titre: 'Les Misérables', auteur: 'Victor Hugo', isbn: '978-2253006312', statut: 'Disponible' },
+                        ].map((livre) => (
+                            <tr key={livre.id} className="hover:bg-gray-50/50 transition-colors">
                                 <td className="px-6 py-4">
                                     <div className="flex items-center gap-3">
                                         <div className="w-10 h-12 bg-gray-100 rounded flex items-center justify-center">
                                             <BookOpen className="w-6 h-6 text-gray-300" />
                                         </div>
                                         <div>
-                                            <p className="text-sm font-bold text-gray-800">Titre du Livre {i}</p>
-                                            <p className="text-xs text-gray-400">ISBN: 123-456-789</p>
+                                            <p className="text-sm font-bold text-gray-800">{livre.titre}</p>
+                                            <p className="text-xs text-gray-400">ISBN: {livre.isbn}</p>
                                         </div>
                                     </div>
                                 </td>
-                                <td className="px-6 py-4 text-sm text-gray-600">Auteur Nom</td>
+                                <td className="px-6 py-4 text-sm text-gray-600">{livre.auteur}</td>
                                 <td className="px-6 py-4">
-                                    <span className="px-2 py-1 bg-green-50 text-green-600 rounded-full text-xs font-semibold">Disponible</span>
+                                    <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                                        livre.statut === 'Disponible' 
+                                        ? 'bg-green-50 text-green-600' 
+                                        : 'bg-orange-50 text-orange-600'
+                                    }`}>
+                                        {livre.statut}
+                                    </span>
                                 </td>
-                                <td className="px-6 py-4">
-                                    <button className="text-gray-400 hover:text-purple-600">
-                                        <MoreVertical className="w-5 h-5" />
-                                    </button>
+                                <td className="px-6 py-4 text-right">
+                                    <div className="flex justify-end gap-2">
+                                        <button 
+                                            onClick={() => handleOpenModal(livre)}
+                                            className="p-2 text-blue-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all"
+                                            title="Modifier"
+                                        >
+                                            <Pencil className="w-4 h-4" />
+                                        </button>
+                                        <button 
+                                            className="p-2 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
+                                            title="Supprimer"
+                                        >
+                                            <Trash2 className="w-4 h-4" />
+                                        </button>
+                                    </div>
                                 </td>
                             </tr>
                         ))}
@@ -100,6 +124,7 @@ const Catalogue = () => {
                                     type="text" 
                                     className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition-all"
                                     placeholder="Ex: Le Petit Prince"
+                                    defaultValue={selectedLivre?.titre || ''}
                                 />
                             </div>
                             <div>
@@ -108,6 +133,7 @@ const Catalogue = () => {
                                     type="text" 
                                     className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition-all"
                                     placeholder="Ex: Antoine de Saint-Exupéry"
+                                    defaultValue={selectedLivre?.auteur || ''}
                                 />
                             </div>
                             <div className="grid grid-cols-2 gap-4">
@@ -117,6 +143,7 @@ const Catalogue = () => {
                                         type="text" 
                                         className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition-all"
                                         placeholder="123-456-789"
+                                        defaultValue={selectedLivre?.isbn || ''}
                                     />
                                 </div>
                                 <div>
@@ -125,6 +152,7 @@ const Catalogue = () => {
                                         type="number" 
                                         className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition-all"
                                         placeholder="2024"
+                                        defaultValue={2024}
                                     />
                                 </div>
                             </div>

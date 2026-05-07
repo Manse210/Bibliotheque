@@ -1,8 +1,14 @@
 import React, { useState } from 'react';
-import { Plus, Search, Filter, MoreVertical, Calendar, User, Book, X, CheckCircle, Clock } from 'lucide-react';
+import { Plus, Search, Filter, MoreVertical, Calendar, User, Book, X, CheckCircle, Clock, Pencil, Trash2, RotateCcw } from 'lucide-react';
 
 const Emprunts = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedEmprunt, setSelectedEmprunt] = useState(null);
+
+    const handleOpenModal = (emprunt = null) => {
+        setSelectedEmprunt(emprunt);
+        setIsModalOpen(true);
+    };
 
     return (
         <div>
@@ -40,28 +46,32 @@ const Emprunts = () => {
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100">
-                        {[1, 2].map((i) => (
-                            <tr key={i} className="hover:bg-gray-50/50 transition-colors">
+                        {[
+                            { id: 1, livre: 'L\'Étranger', auteur: 'Albert Camus', lecteur: 'Jean Dupont', date: '01 Mai 2024', retour: '15 Mai 2024', statut: 'En cours' },
+                            { id: 2, livre: '1984', auteur: 'George Orwell', lecteur: 'Marie Simon', date: '25 Avril 2024', retour: '10 Mai 2024', statut: 'Rendu' },
+                            { id: 3, livre: 'Le Petit Prince', auteur: 'A. de Saint-Exupéry', lecteur: 'Alice Legrand', date: '05 Mai 2024', retour: '19 Mai 2024', statut: 'En cours' },
+                        ].map((emprunt) => (
+                            <tr key={emprunt.id} className="hover:bg-gray-50/50 transition-colors">
                                 <td className="px-6 py-4">
                                     <div className="space-y-1">
                                         <div className="flex items-center gap-2 text-sm font-bold text-gray-800">
                                             <Book className="w-4 h-4 text-purple-500" />
-                                            <span>L'Étranger - Albert Camus</span>
+                                            <span>{emprunt.livre} - {emprunt.auteur}</span>
                                         </div>
                                         <div className="flex items-center gap-2 text-xs text-gray-400">
                                             <User className="w-3 h-3" />
-                                            <span>Jean Dupont</span>
+                                            <span>{emprunt.lecteur}</span>
                                         </div>
                                     </div>
                                 </td>
                                 <td className="px-6 py-4 text-sm text-gray-600">
-                                    01 Mai 2024
+                                    {emprunt.date}
                                 </td>
                                 <td className="px-6 py-4 text-sm text-gray-600">
-                                    15 Mai 2024
+                                    {emprunt.retour}
                                 </td>
                                 <td className="px-6 py-4">
-                                    {i === 1 ? (
+                                    {emprunt.statut === 'En cours' ? (
                                         <span className="px-2 py-1 bg-blue-50 text-blue-600 rounded-full text-xs font-semibold flex items-center gap-1 w-fit">
                                             <Clock className="w-3 h-3" />
                                             En cours
@@ -73,10 +83,30 @@ const Emprunts = () => {
                                         </span>
                                     )}
                                 </td>
-                                <td className="px-6 py-4">
-                                    <button className="text-gray-400 hover:text-purple-600">
-                                        <MoreVertical className="w-5 h-5" />
-                                    </button>
+                                <td className="px-6 py-4 text-right">
+                                    <div className="flex justify-end gap-2">
+                                        {emprunt.statut === 'En cours' && (
+                                            <button 
+                                                className="p-2 text-green-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-all"
+                                                title="Marquer comme rendu"
+                                            >
+                                                <RotateCcw className="w-4 h-4" />
+                                            </button>
+                                        )}
+                                        <button 
+                                            onClick={() => handleOpenModal(emprunt)}
+                                            className="p-2 text-blue-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all"
+                                            title="Modifier"
+                                        >
+                                            <Pencil className="w-4 h-4" />
+                                        </button>
+                                        <button 
+                                            className="p-2 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
+                                            title="Supprimer"
+                                        >
+                                            <Trash2 className="w-4 h-4" />
+                                        </button>
+                                    </div>
                                 </td>
                             </tr>
                         ))}
@@ -89,7 +119,9 @@ const Emprunts = () => {
                 <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
                     <div className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in duration-200">
                         <div className="flex justify-between items-center p-6 border-b border-gray-100">
-                            <h2 className="text-xl font-bold text-gray-800">Nouvel Emprunt</h2>
+                            <h2 className="text-xl font-bold text-gray-800">
+                                {selectedEmprunt ? 'Modifier l\'Emprunt' : 'Nouvel Emprunt'}
+                            </h2>
                             <button 
                                 onClick={() => setIsModalOpen(false)}
                                 className="text-gray-400 hover:text-gray-600 transition-colors"
@@ -101,18 +133,26 @@ const Emprunts = () => {
                         <form className="p-6 space-y-4">
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-1">Sélectionner un Livre</label>
-                                <select className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 outline-none appearance-none">
-                                    <option>Choisir un livre...</option>
+                                <select 
+                                    className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 outline-none appearance-none"
+                                    defaultValue={selectedEmprunt?.livre || ''}
+                                >
+                                    <option value="">Choisir un livre...</option>
                                     <option>L'Étranger - Albert Camus</option>
                                     <option>1984 - George Orwell</option>
+                                    <option>Le Petit Prince - A. de Saint-Exupéry</option>
                                 </select>
                             </div>
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-1">Sélectionner un Lecteur</label>
-                                <select className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 outline-none appearance-none">
-                                    <option>Choisir un lecteur...</option>
+                                <select 
+                                    className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 outline-none appearance-none"
+                                    defaultValue={selectedEmprunt?.lecteur || ''}
+                                >
+                                    <option value="">Choisir un lecteur...</option>
                                     <option>Jean Dupont</option>
                                     <option>Marie Simon</option>
+                                    <option>Alice Legrand</option>
                                 </select>
                             </div>
                             <div>
@@ -122,6 +162,7 @@ const Emprunts = () => {
                                     <input 
                                         type="date" 
                                         className="w-full px-4 py-2 pl-10 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 outline-none"
+                                        defaultValue={selectedEmprunt ? '2024-05-15' : ''}
                                     />
                                 </div>
                             </div>
