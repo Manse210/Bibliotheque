@@ -1,12 +1,23 @@
-import React from 'react';
-import { Plus, Search, Filter, MoreVertical } from 'lucide-react';
+import React, { useState } from 'react';
+import { Plus, Search, Filter, MoreVertical, BookOpen, X } from 'lucide-react';
 
 const Catalogue = () => {
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedLivre, setSelectedLivre] = useState(null);
+
+    const handleOpenModal = (livre = null) => {
+        setSelectedLivre(livre);
+        setIsModalOpen(true);
+    };
+
     return (
         <div>
             <div className="flex justify-between items-center mb-8">
                 <h1 className="text-2xl font-bold text-gray-800">Catalogue des Livres</h1>
-                <button className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors">
+                <button 
+                    onClick={() => handleOpenModal()}
+                    className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
+                >
                     <Plus className="w-5 h-5" />
                     <span>Ajouter un Livre</span>
                 </button>
@@ -65,10 +76,81 @@ const Catalogue = () => {
                     </tbody>
                 </table>
             </div>
+
+            {/* Modal d'Ajout/Édition */}
+            {isModalOpen && (
+                <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+                    <div className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in duration-200">
+                        <div className="flex justify-between items-center p-6 border-b border-gray-100">
+                            <h2 className="text-xl font-bold text-gray-800">
+                                {selectedLivre ? 'Modifier le Livre' : 'Ajouter un Nouveau Livre'}
+                            </h2>
+                            <button 
+                                onClick={() => setIsModalOpen(false)}
+                                className="text-gray-400 hover:text-gray-600 transition-colors"
+                            >
+                                <X className="w-6 h-6" />
+                            </button>
+                        </div>
+                        
+                        <form className="p-6 space-y-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Titre</label>
+                                <input 
+                                    type="text" 
+                                    className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition-all"
+                                    placeholder="Ex: Le Petit Prince"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Auteur</label>
+                                <input 
+                                    type="text" 
+                                    className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition-all"
+                                    placeholder="Ex: Antoine de Saint-Exupéry"
+                                />
+                            </div>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">ISBN</label>
+                                    <input 
+                                        type="text" 
+                                        className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition-all"
+                                        placeholder="123-456-789"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Année</label>
+                                    <input 
+                                        type="number" 
+                                        className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition-all"
+                                        placeholder="2024"
+                                    />
+                                </div>
+                            </div>
+                            
+                            <div className="pt-4 flex gap-3">
+                                <button 
+                                    type="button"
+                                    onClick={() => setIsModalOpen(false)}
+                                    className="flex-1 px-4 py-2 border border-gray-200 text-gray-600 rounded-lg font-medium hover:bg-gray-50 transition-colors"
+                                >
+                                    Annuler
+                                </button>
+                                <button 
+                                    type="submit"
+                                    className="flex-1 px-4 py-2 bg-purple-600 text-white rounded-lg font-medium hover:bg-purple-700 transition-colors shadow-lg shadow-purple-200"
+                                >
+                                    {selectedLivre ? 'Enregistrer' : 'Ajouter'}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
 
-// Mock BookOpen since it's used here
-import { BookOpen } from 'lucide-react';
 export default Catalogue;
+
