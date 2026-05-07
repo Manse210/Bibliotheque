@@ -30,23 +30,88 @@ const Dashboard = () => {
                 })}
             </div>
 
-            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-                <h2 className="text-lg font-bold text-gray-800 mb-4">Dernières Activités</h2>
-                <div className="space-y-4">
-                    {[1, 2, 3].map((i) => (
-                        <div key={i} className="flex items-center justify-between py-3 border-b border-gray-50 last:border-0">
-                            <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 rounded-full bg-purple-50 flex items-center justify-center text-purple-600 font-bold">
-                                    L
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div className="lg:col-span-2 bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                    <h2 className="text-lg font-bold text-gray-800 mb-6 flex items-center gap-2">
+                        <Clock className="w-5 h-5 text-purple-500" />
+                        Dernières Activités
+                    </h2>
+                    <div className="space-y-6">
+                        {[
+                            { title: 'Livre "L\'Étranger" emprunté', user: 'Jean Dupont', time: 'Il y a 2 heures', type: 'Emprunt', color: 'text-blue-600 bg-blue-50' },
+                            { title: 'Livre "1984" retourné', user: 'Marie Simon', time: 'Il y a 5 heures', type: 'Retour', color: 'text-green-600 bg-green-50' },
+                            { title: 'Nouveau lecteur inscrit', user: 'Alice Legrand', time: 'Hier', type: 'Inscription', color: 'text-purple-600 bg-purple-50' },
+                            { title: 'Livre "Le Petit Prince" ajouté', user: 'Admin', time: 'Hier', type: 'Catalogue', color: 'text-orange-600 bg-orange-50' },
+                        ].map((activity, i) => (
+                            <div key={i} className="flex items-center justify-between group cursor-default">
+                                <div className="flex items-center gap-4">
+                                    <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold ${activity.color}`}>
+                                        {activity.user[0]}
+                                    </div>
+                                    <div>
+                                        <p className="text-sm font-semibold text-gray-800 group-hover:text-purple-600 transition-colors">{activity.title}</p>
+                                        <p className="text-xs text-gray-400">{activity.user} • {activity.time}</p>
+                                    </div>
                                 </div>
-                                <div>
-                                    <p className="text-sm font-semibold text-gray-800">Livre "Le Petit Prince" emprunté</p>
-                                    <p className="text-xs text-gray-400">Par Jean Dupont • Il y a 2 heures</p>
+                                <span className={`text-[10px] uppercase tracking-wider font-bold px-2 py-1 rounded-md ${activity.color}`}>
+                                    {activity.type}
+                                </span>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+
+                <div className="space-y-6">
+                    <div className="bg-gradient-to-br from-purple-600 to-indigo-700 rounded-xl shadow-lg p-6 text-white">
+                        <h2 className="text-lg font-bold mb-4">Actions Rapides</h2>
+                        <div className="grid grid-cols-1 gap-3">
+                            <button className="flex items-center gap-3 bg-white/10 hover:bg-white/20 p-3 rounded-lg transition-all text-sm font-medium">
+                                <Plus className="w-5 h-5" />
+                                Nouvel Emprunt
+                            </button>
+                            <button className="flex items-center gap-3 bg-white/10 hover:bg-white/20 p-3 rounded-lg transition-all text-sm font-medium">
+                                <Users className="w-5 h-5" />
+                                Inscrire un Lecteur
+                            </button>
+                            <button className="flex items-center gap-3 bg-white/10 hover:bg-white/20 p-3 rounded-lg transition-all text-sm font-medium">
+                                <BookOpen className="w-5 h-5" />
+                                Ajouter au Catalogue
+                            </button>
+                        </div>
+                    </div>
+
+                    <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                        <h2 className="text-lg font-bold text-gray-800 mb-4">État du Stock</h2>
+                        <div className="space-y-4">
+                            <div>
+                                <div className="flex justify-between text-xs mb-1">
+                                    <span className="text-gray-400">Livres Disponibles</span>
+                                    <span className="text-gray-800 font-bold">85%</span>
+                                </div>
+                                <div className="w-full bg-gray-100 h-2 rounded-full overflow-hidden">
+                                    <div className="bg-green-500 h-full w-[85%]" />
                                 </div>
                             </div>
-                            <span className="text-xs font-medium px-2 py-1 bg-purple-50 text-purple-600 rounded">Info</span>
+                            <div>
+                                <div className="flex justify-between text-xs mb-1">
+                                    <span className="text-gray-400">En cours de prêt</span>
+                                    <span className="text-gray-800 font-bold">12%</span>
+                                </div>
+                                <div className="w-full bg-gray-100 h-2 rounded-full overflow-hidden">
+                                    <div className="bg-blue-500 h-full w-[12%]" />
+                                </div>
+                            </div>
+                            <div>
+                                <div className="flex justify-between text-xs mb-1">
+                                    <span className="text-gray-400">En retard</span>
+                                    <span className="text-gray-800 font-bold">3%</span>
+                                </div>
+                                <div className="w-full bg-gray-100 h-2 rounded-full overflow-hidden">
+                                    <div className="bg-red-500 h-full w-[3%]" />
+                                </div>
+                            </div>
                         </div>
-                    ))}
+                    </div>
                 </div>
             </div>
         </div>
