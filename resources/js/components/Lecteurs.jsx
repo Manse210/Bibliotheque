@@ -1,13 +1,81 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Plus, Search, Filter, MoreVertical, User, X, Mail, Phone, Pencil, Trash2 } from 'lucide-react';
+import api from '../api';
 
 const Lecteurs = () => {
+    const [lecteurs, setLecteurs] = useState([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedLecteur, setSelectedLecteur] = useState(null);
+    const [formData, setFormData] = useState({
+        nom: '',
+        prenom: '',
+        email: '',
+        telephone: ''
+    });
+
+    useEffect(() => {
+        fetchLecteurs();
+    }, []);
+
+    const fetchLecteurs = async () => {
+        try {
+            const response = await api.get('/lecteurs');
+            setLecteurs(response.data);
+        } catch (error) {
+            console.error('Erreur chargement lecteurs:', error);
+        }
+    };
 
     const handleOpenModal = (lecteur = null) => {
-        setSelectedLecteur(lecteur);
+        if (lecteur) {
+            setSelectedLecteur(lecteur);
+            setFormData({
+                nom: lecteur.nom,
+                prenom: lecteur.prenom,
+                email: lecteur.email,
+                telephone: lecteur.telephone || ''
+            });
+        } else {
+            setSelectedLecteur(null);
+            setFormData({
+                nom: '',
+                prenom: '',
+                email: '',
+                telephone: ''
+            });
+        }
         setIsModalOpen(true);
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        try {
+            if (selectedLecteur) {
+                await api.put(`/lecteurs/${selectedLecteur.id}`, formData);
+                alert('Lecteur modifié avec succès !');
+            } else {
+                await api.post('/lecteurs', formData);
+                alert('Lecteur inscrit avec succès !');
+            }
+            setIsModalOpen(false);
+            fetchLecteurs();
+        } catch (error) {
+            console.error('Erreur:', error.response?.data || error.message);
+            alert('Erreur: ' + (error.response?.data?.message || 'Vérifiez les données (email peut-être déjà utilisé)'));
+        }
+    };
+
+    const handleDelete = async (id) => {
+        if (confirm('Êtes-vous sûr de vouloir supprimer ce lecteur ?')) {
+            try {
+                await api.delete(`/lecteurs/${id}`);
+                alert('Lecteur supprimé !');
+                fetchLecteurs();
+            } catch (error) {
+                console.error('Erreur suppression:', error);
+                alert('Erreur lors de la suppression');
+            }
+        }
     };
 
     return (
@@ -24,17 +92,6 @@ const Lecteurs = () => {
             </div>
 
             <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-                <div className="p-4 border-b border-gray-100 flex gap-4">
-                    <div className="flex-1 relative">
-                        <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                        <input 
-                            type="text" 
-                            placeholder="Rechercher un lecteur..." 
-                            className="bg-gray-50 border-none rounded-lg pl-10 pr-4 py-2 w-full text-sm outline-none"
-                        />
-                    </div>
-                </div>
-
                 <table className="w-full text-left">
                     <thead className="bg-gray-50 text-gray-400 text-xs uppercase font-semibold">
                         <tr>
@@ -45,15 +102,11 @@ const Lecteurs = () => {
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100">
-                        {[
-                            { id: 1, nom: 'Dupont', prenom: 'Jean', email: 'jean.dupont@email.com', telephone: '06 12 34 56 01', livres: 3 },
-                            { id: 2, nom: 'Simon', prenom: 'Marie', email: 'm.simon@email.com', telephone: '06 98 76 54 32', livres: 1 },
-                            { id: 3, nom: 'Legrand', prenom: 'Alice', email: 'alice.l@provider.fr', telephone: '07 11 22 33 44', livres: 5 },
-                        ].map((lecteur) => (
+                        {lecteurs.map((lecteur) => (
                             <tr key={lecteur.id} className="hover:bg-gray-50/50 transition-colors">
                                 <td className="px-6 py-4">
                                     <div className="flex items-center gap-3">
-                                        <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center text-purple-600 font-bold">
+                                        <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center text-purple-600 font-bold uppercase">
                                             {lecteur.prenom[0]}{lecteur.nom[0]}
                                         </div>
                                         <div>
@@ -72,12 +125,12 @@ const Lecteurs = () => {
                                         </div>
                                         <div className="flex items-center gap-2 text-xs text-gray-600">
                                             <Phone className="w-3 h-3 text-gray-400" />
-                                            <span>{lecteur.telephone}</span>
+                                            <span>{lecteur.telephone || 'Non renseigné'}</span>
                                         </div>
                                     </div>
                                 </td>
                                 <td className="px-6 py-4 text-sm text-gray-600">
-                                    <span className="font-semibold">{lecteur.livres}</span> livres
+                                    <span className="font-semibold">{lecteur.emprunts_count || 0}</span> livres
                                 </td>
                                 <td className="px-6 py-4 text-right">
                                     <div className="flex justify-end gap-2">
@@ -89,6 +142,7 @@ const Lecteurs = () => {
                                             <Pencil className="w-4 h-4" />
                                         </button>
                                         <button 
+                                            onClick={() => handleDelete(lecteur.id)}
                                             className="p-2 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
                                             title="Supprimer"
                                         >
@@ -98,6 +152,13 @@ const Lecteurs = () => {
                                 </td>
                             </tr>
                         ))}
+                        {lecteurs.length === 0 && (
+                            <tr>
+                                <td colSpan="4" className="px-6 py-8 text-center text-gray-500">
+                                    Aucun lecteur n'a été trouvé.
+                                </td>
+                            </tr>
+                        )}
                     </tbody>
                 </table>
             </div>
@@ -105,7 +166,7 @@ const Lecteurs = () => {
             {/* Modal Lecteur */}
             {isModalOpen && (
                 <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-                    <div className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in duration-200">
+                    <div className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden">
                         <div className="flex justify-between items-center p-6 border-b border-gray-100">
                             <h2 className="text-xl font-bold text-gray-800">
                                 {selectedLecteur ? 'Modifier le Lecteur' : 'Inscrire un Nouveau Lecteur'}
@@ -118,7 +179,7 @@ const Lecteurs = () => {
                             </button>
                         </div>
                         
-                        <form className="p-6 space-y-4">
+                        <form onSubmit={handleSubmit} className="p-6 space-y-4">
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">Nom</label>
@@ -126,7 +187,9 @@ const Lecteurs = () => {
                                         type="text" 
                                         className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 outline-none"
                                         placeholder="Dupont"
-                                        defaultValue={selectedLecteur?.nom || ''}
+                                        value={formData.nom}
+                                        onChange={(e) => setFormData({...formData, nom: e.target.value})}
+                                        required
                                     />
                                 </div>
                                 <div>
@@ -135,7 +198,9 @@ const Lecteurs = () => {
                                         type="text" 
                                         className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 outline-none"
                                         placeholder="Jean"
-                                        defaultValue={selectedLecteur?.prenom || ''}
+                                        value={formData.prenom}
+                                        onChange={(e) => setFormData({...formData, prenom: e.target.value})}
+                                        required
                                     />
                                 </div>
                             </div>
@@ -145,7 +210,9 @@ const Lecteurs = () => {
                                     type="email" 
                                     className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 outline-none"
                                     placeholder="jean.dupont@email.com"
-                                    defaultValue={selectedLecteur?.email || ''}
+                                    value={formData.email}
+                                    onChange={(e) => setFormData({...formData, email: e.target.value})}
+                                    required
                                 />
                             </div>
                             <div>
@@ -154,7 +221,8 @@ const Lecteurs = () => {
                                     type="tel" 
                                     className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 outline-none"
                                     placeholder="06 00 00 00 00"
-                                    defaultValue={selectedLecteur?.telephone || ''}
+                                    value={formData.telephone}
+                                    onChange={(e) => setFormData({...formData, telephone: e.target.value})}
                                 />
                             </div>
                             
