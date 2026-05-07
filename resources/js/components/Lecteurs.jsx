@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Plus, Search, Filter, MoreVertical, User, X, Mail, Phone } from 'lucide-react';
+import { Plus, Search, Filter, MoreVertical, User, X, Mail, Phone, Pencil, Trash2 } from 'lucide-react';
 
 const Lecteurs = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -45,18 +45,22 @@ const Lecteurs = () => {
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100">
-                        {[1, 2, 3].map((i) => (
-                            <tr key={i} className="hover:bg-gray-50/50 transition-colors">
+                        {[
+                            { id: 1, nom: 'Dupont', prenom: 'Jean', email: 'jean.dupont@email.com', telephone: '06 12 34 56 01', livres: 3 },
+                            { id: 2, nom: 'Simon', prenom: 'Marie', email: 'm.simon@email.com', telephone: '06 98 76 54 32', livres: 1 },
+                            { id: 3, nom: 'Legrand', prenom: 'Alice', email: 'alice.l@provider.fr', telephone: '07 11 22 33 44', livres: 5 },
+                        ].map((lecteur) => (
+                            <tr key={lecteur.id} className="hover:bg-gray-50/50 transition-colors">
                                 <td className="px-6 py-4">
                                     <div className="flex items-center gap-3">
                                         <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center text-purple-600 font-bold">
-                                            {i === 1 ? 'JD' : i === 2 ? 'MS' : 'AL'}
+                                            {lecteur.prenom[0]}{lecteur.nom[0]}
                                         </div>
                                         <div>
                                             <p className="text-sm font-bold text-gray-800">
-                                                {i === 1 ? 'Jean Dupont' : i === 2 ? 'Marie Simon' : 'Alice Legrand'}
+                                                {lecteur.prenom} {lecteur.nom}
                                             </p>
-                                            <p className="text-xs text-gray-400">ID: LCT-00{i}</p>
+                                            <p className="text-xs text-gray-400">ID: LCT-00{lecteur.id}</p>
                                         </div>
                                     </div>
                                 </td>
@@ -64,21 +68,33 @@ const Lecteurs = () => {
                                     <div className="space-y-1">
                                         <div className="flex items-center gap-2 text-xs text-gray-600">
                                             <Mail className="w-3 h-3 text-gray-400" />
-                                            <span>lecteur{i}@email.com</span>
+                                            <span>{lecteur.email}</span>
                                         </div>
                                         <div className="flex items-center gap-2 text-xs text-gray-600">
                                             <Phone className="w-3 h-3 text-gray-400" />
-                                            <span>06 12 34 56 0{i}</span>
+                                            <span>{lecteur.telephone}</span>
                                         </div>
                                     </div>
                                 </td>
                                 <td className="px-6 py-4 text-sm text-gray-600">
-                                    <span className="font-semibold">{i * 2 - 1}</span> livres
+                                    <span className="font-semibold">{lecteur.livres}</span> livres
                                 </td>
-                                <td className="px-6 py-4">
-                                    <button className="text-gray-400 hover:text-purple-600">
-                                        <MoreVertical className="w-5 h-5" />
-                                    </button>
+                                <td className="px-6 py-4 text-right">
+                                    <div className="flex justify-end gap-2">
+                                        <button 
+                                            onClick={() => handleOpenModal(lecteur)}
+                                            className="p-2 text-blue-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all"
+                                            title="Modifier"
+                                        >
+                                            <Pencil className="w-4 h-4" />
+                                        </button>
+                                        <button 
+                                            className="p-2 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
+                                            title="Supprimer"
+                                        >
+                                            <Trash2 className="w-4 h-4" />
+                                        </button>
+                                    </div>
                                 </td>
                             </tr>
                         ))}
@@ -110,6 +126,7 @@ const Lecteurs = () => {
                                         type="text" 
                                         className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 outline-none"
                                         placeholder="Dupont"
+                                        defaultValue={selectedLecteur?.nom || ''}
                                     />
                                 </div>
                                 <div>
@@ -118,6 +135,7 @@ const Lecteurs = () => {
                                         type="text" 
                                         className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 outline-none"
                                         placeholder="Jean"
+                                        defaultValue={selectedLecteur?.prenom || ''}
                                     />
                                 </div>
                             </div>
@@ -127,6 +145,7 @@ const Lecteurs = () => {
                                     type="email" 
                                     className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 outline-none"
                                     placeholder="jean.dupont@email.com"
+                                    defaultValue={selectedLecteur?.email || ''}
                                 />
                             </div>
                             <div>
@@ -135,6 +154,7 @@ const Lecteurs = () => {
                                     type="tel" 
                                     className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 outline-none"
                                     placeholder="06 00 00 00 00"
+                                    defaultValue={selectedLecteur?.telephone || ''}
                                 />
                             </div>
                             

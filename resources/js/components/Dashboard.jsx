@@ -1,7 +1,9 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { BookOpen, Users, Clock, CheckCircle, Plus } from 'lucide-react';
 
 const Dashboard = () => {
+    const navigate = useNavigate();
     const stats = [
         { label: 'Livres Totaux', value: '1,240', icon: BookOpen, color: 'bg-blue-500' },
         { label: 'Lecteurs Actifs', value: '458', icon: Users, color: 'bg-purple-500' },
@@ -65,15 +67,24 @@ const Dashboard = () => {
                     <div className="bg-gradient-to-br from-purple-600 to-indigo-700 rounded-xl shadow-lg p-6 text-white">
                         <h2 className="text-lg font-bold mb-4">Actions Rapides</h2>
                         <div className="grid grid-cols-1 gap-3">
-                            <button className="flex items-center gap-3 bg-white/10 hover:bg-white/20 p-3 rounded-lg transition-all text-sm font-medium">
+                            <button 
+                                onClick={() => navigate('/emprunts')}
+                                className="flex items-center gap-3 bg-white/10 hover:bg-white/20 p-3 rounded-lg transition-all text-sm font-medium text-left w-full"
+                            >
                                 <Plus className="w-5 h-5" />
                                 Nouvel Emprunt
                             </button>
-                            <button className="flex items-center gap-3 bg-white/10 hover:bg-white/20 p-3 rounded-lg transition-all text-sm font-medium">
+                            <button 
+                                onClick={() => navigate('/lecteurs')}
+                                className="flex items-center gap-3 bg-white/10 hover:bg-white/20 p-3 rounded-lg transition-all text-sm font-medium text-left w-full"
+                            >
                                 <Users className="w-5 h-5" />
                                 Inscrire un Lecteur
                             </button>
-                            <button className="flex items-center gap-3 bg-white/10 hover:bg-white/20 p-3 rounded-lg transition-all text-sm font-medium">
+                            <button 
+                                onClick={() => navigate('/catalogue')}
+                                className="flex items-center gap-3 bg-white/10 hover:bg-white/20 p-3 rounded-lg transition-all text-sm font-medium text-left w-full"
+                            >
                                 <BookOpen className="w-5 h-5" />
                                 Ajouter au Catalogue
                             </button>
