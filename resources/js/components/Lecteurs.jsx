@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Search, Filter, MoreVertical, User, X, Mail, Phone, Pencil, Trash2 } from 'lucide-react';
 import api from '../api';
+import { useToast } from '../ToastContext';
 
 const Lecteurs = () => {
+    const showToast = useToast();
     const [lecteurs, setLecteurs] = useState([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedLecteur, setSelectedLecteur] = useState(null);
@@ -23,6 +25,7 @@ const Lecteurs = () => {
             setLecteurs(response.data);
         } catch (error) {
             console.error('Erreur chargement lecteurs:', error);
+            showToast('Erreur lors du chargement des lecteurs.', 'error');
         }
     };
 
@@ -49,19 +52,23 @@ const Lecteurs = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        console.log('Soumission du formulaire...', formData);
         try {
+            // Assure la récupération du cookie CSRF avant chaque opération modifiante
+            await api.get('/sanctum/csrf-cookie');
+            
             if (selectedLecteur) {
                 await api.put(`/lecteurs/${selectedLecteur.id}`, formData);
-                alert('Lecteur modifié avec succès !');
+                showToast('Lecteur modifié avec succès !');
             } else {
                 await api.post('/lecteurs', formData);
-                alert('Lecteur inscrit avec succès !');
+                showToast('Lecteur inscrit avec succès !');
             }
             setIsModalOpen(false);
             fetchLecteurs();
         } catch (error) {
-            console.error('Erreur:', error.response?.data || error.message);
-            alert('Erreur: ' + (error.response?.data?.message || 'Vérifiez les données (email peut-être déjà utilisé)'));
+            console.error('Erreur détaillée lors de la soumission:', error.response?.data || error.message);
+            showToast('Erreur: ' + (error.response?.data?.message || 'Vérifiez les données'), 'error');
         }
     };
 
@@ -69,11 +76,11 @@ const Lecteurs = () => {
         if (confirm('Êtes-vous sûr de vouloir supprimer ce lecteur ?')) {
             try {
                 await api.delete(`/lecteurs/${id}`);
-                alert('Lecteur supprimé !');
+                showToast('Lecteur supprimé !');
                 fetchLecteurs();
             } catch (error) {
                 console.error('Erreur suppression:', error);
-                alert('Erreur lors de la suppression');
+                showToast('Erreur lors de la suppression', 'error');
             }
         }
     };
@@ -248,5 +255,3 @@ const Lecteurs = () => {
         </div>
     );
 };
-
-export default Lecteurs;
