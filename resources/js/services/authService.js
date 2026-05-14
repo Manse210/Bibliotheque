@@ -3,8 +3,8 @@ import api from '../api';
 const authService = {
     login: async (credentials) => {
         const response = await api.post('/login', credentials);
-        if (response.data.token) {
-            localStorage.setItem('user_token', response.data.token);
+        if (response.data.access_token) {
+            localStorage.setItem('user_token', response.data.access_token);
         }
         return response.data;
     },
