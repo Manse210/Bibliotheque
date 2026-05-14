@@ -1,14 +1,21 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Book } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import authService from '../services/authService';
 
-const Login = () => {
-    const navigate = useNavigate();
+const Login = ({ onLoginSuccess }) => {
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [error, setError] = useState('');
 
-    const handleLogin = (event) => {
+    const handleLogin = async (event) => {
         event.preventDefault();
-        localStorage.setItem('user_token', 'demo-token');
-        navigate('/dashboard', { replace: true });
+        setError('');
+        try {
+            await authService.login({ email, password });
+            onLoginSuccess();
+        } catch (err) {
+            setError('Email ou mot de passe incorrect.');
+        }
     };
 
     return (
@@ -24,21 +31,29 @@ const Login = () => {
                     <h2 className="text-2xl font-bold text-center text-gray-800 mb-2">Bienvenue</h2>
                     <p className="text-center text-gray-400 mb-8">Connectez-vous pour gérer la bibliothèque</p>
 
+                    {error && <p className="text-red-500 text-sm text-center mb-4">{error}</p>}
+
                     <form className="space-y-4" onSubmit={handleLogin}>
                         <div>
                             <label className="block text-sm font-semibold text-gray-700 mb-1">Email</label>
                             <input 
                                 type="email" 
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
                                 className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none transition-all"
                                 placeholder="exemple@mail.com"
+                                required
                             />
                         </div>
                         <div>
                             <label className="block text-sm font-semibold text-gray-700 mb-1">Mot de passe</label>
                             <input 
                                 type="password" 
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
                                 className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none transition-all"
                                 placeholder="••••••••"
+                                required
                             />
                         </div>
                         

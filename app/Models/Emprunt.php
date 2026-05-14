@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Emprunt extends Model
 {
@@ -14,12 +15,12 @@ class Emprunt extends Model
         'date_retour_reelle'
     ];
 
-    public function livre()
+    public function livre(): BelongsTo
     {
         return $this->belongsTo(Livre::class);
     }
 
-    public function lecteur()
+    public function lecteur(): BelongsTo
     {
         return $this->belongsTo(Lecteur::class);
     }
