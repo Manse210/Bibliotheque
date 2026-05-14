@@ -9,7 +9,7 @@ import Emprunts from "./components/Emprunts";
 import Login from "./components/Login";
 import Profile from "./components/Profile";
 import authService from "./services/authService";
-import { ToastProvider } from "./ToastContext";
+import { ToastProvider } from "./ToastContext.jsx";
 
 function App() {
     const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem('user_token'));
