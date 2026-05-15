@@ -9,10 +9,10 @@ import Emprunts from "./components/Emprunts";
 import Login from "./components/Login";
 import Profile from "./components/Profile";
 import authService from "./services/authService";
+import { ToastProvider } from "./ToastContext.jsx";
 
 function App() {
     const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem('user_token'));
-    const [loading, setLoading] = useState(false);
 
     const handleLogout = async () => {
         await authService.logout();
@@ -26,28 +26,32 @@ function App() {
     if (!isAuthenticated) {
         return (
             <BrowserRouter>
-                <Routes>
-                    <Route path="/login" element={<Login onLoginSuccess={handleLoginSuccess} />} />
-                    <Route path="*" element={<Navigate to="/login" replace />} />
-                </Routes>
+                <ToastProvider>
+                    <Routes>
+                        <Route path="/login" element={<Login onLoginSuccess={handleLoginSuccess} />} />
+                        <Route path="*" element={<Navigate to="/login" replace />} />
+                    </Routes>
+                </ToastProvider>
             </BrowserRouter>
         );
     }
 
     return (
         <BrowserRouter>
-            <MainLayout onLogout={handleLogout}>
-                <Routes>
-                    <Route path="/dashboard" element={<Dashboard />} />
-                    <Route path="/catalogue" element={<Catalogue />} />
-                    <Route path="/lecteurs" element={<Lecteurs />} />
-                    <Route path="/emprunts" element={<Emprunts />} />
-                    <Route path="/profil" element={<Profile />} />
-                    <Route path="/login" element={<Navigate to="/dashboard" replace />} />
-                    <Route path="/" element={<Navigate to="/dashboard" replace />} />
-                    <Route path="*" element={<Navigate to="/dashboard" replace />} />
-                </Routes>
-            </MainLayout>
+            <ToastProvider>
+                <MainLayout onLogout={handleLogout}>
+                    <Routes>
+                        <Route path="/dashboard" element={<Dashboard />} />
+                        <Route path="/catalogue" element={<Catalogue />} />
+                        <Route path="/lecteurs" element={<Lecteurs />} />
+                        <Route path="/emprunts" element={<Emprunts />} />
+                        <Route path="/profil" element={<Profile />} />
+                        <Route path="/login" element={<Navigate to="/dashboard" replace />} />
+                        <Route path="/" element={<Navigate to="/dashboard" replace />} />
+                        <Route path="*" element={<Navigate to="/dashboard" replace />} />
+                    </Routes>
+                </MainLayout>
+            </ToastProvider>
         </BrowserRouter>
     );
 }
