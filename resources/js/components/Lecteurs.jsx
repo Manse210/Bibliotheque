@@ -52,9 +52,7 @@ const Lecteurs = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log('Soumission du formulaire...', formData);
         try {
-            // Assure la récupération du cookie CSRF avant chaque opération modifiante
             await api.get('/sanctum/csrf-cookie');
             
             if (selectedLecteur) {
@@ -255,3 +253,5 @@ const Lecteurs = () => {
         </div>
     );
 };
+
+export default Lecteurs;
